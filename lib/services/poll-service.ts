@@ -171,4 +171,110 @@ export class PollService {
 
     return data || []
   }
+
+  // Delete a poll (soft delete by setting is_active to false)
+  static async deletePoll(pollId: string): Promise<boolean> {
+    const supabase = createClient()
+
+    try {
+      const { error } = await supabase
+        .from('polls')
+        .update({ is_active: false })
+        .eq('id', pollId)
+
+      if (error) {
+        console.error('Error deleting poll:', error)
+        throw error
+      }
+
+      return true
+    } catch (error: any) {
+      console.error('Error in deletePoll:', error)
+      throw new Error('Failed to delete poll')
+    }
+  }
+
+  // Update a poll and its options
+  static async updatePoll(pollId: string, pollData: {
+    title: string
+    description?: string
+    options: { id: string; text: string }[]
+  }): Promise<boolean> {
+    const supabase = createClient()
+
+    try {
+      // Update the poll
+      const { error: pollError } = await supabase
+        .from('polls')
+        .update({
+          title: pollData.title,
+          description: pollData.description || null,
+        })
+        .eq('id', pollId)
+
+      if (pollError) {
+        console.error('Error updating poll:', pollError)
+        throw pollError
+      }
+
+      // Get existing options to compare
+      const { data: existingOptions } = await supabase
+        .from('poll_options')
+        .select('id')
+        .eq('poll_id', pollId)
+
+      const existingOptionIds = existingOptions?.map(opt => opt.id) || []
+      const newOptionIds = pollData.options
+        .filter(opt => !opt.id.startsWith('new-'))
+        .map(opt => opt.id)
+
+      // Delete options that are no longer present
+      const optionsToDelete = existingOptionIds.filter(id => !newOptionIds.includes(id))
+      if (optionsToDelete.length > 0) {
+        const { error: deleteError } = await supabase
+          .from('poll_options')
+          .delete()
+          .in('id', optionsToDelete)
+
+        if (deleteError) {
+          console.error('Error deleting options:', deleteError)
+          throw deleteError
+        }
+      }
+
+      // Update existing options and insert new ones
+      for (const option of pollData.options) {
+        if (option.id.startsWith('new-')) {
+          // Insert new option
+          const { error: insertError } = await supabase
+            .from('poll_options')
+            .insert({
+              poll_id: pollId,
+              option_text: option.text,
+            })
+
+          if (insertError) {
+            console.error('Error inserting option:', insertError)
+            throw insertError
+          }
+        } else {
+          // Update existing option
+          const { error: updateError } = await supabase
+            .from('poll_options')
+            .update({ option_text: option.text })
+            .eq('id', option.id)
+
+          if (updateError) {
+            console.error('Error updating option:', updateError)
+            throw updateError
+          }
+        }
+      }
+
+      return true
+    } catch (error: any) {
+      console.error('Error in updatePoll:', error)
+      throw new Error('Failed to update poll')
+    }
+  }
 }

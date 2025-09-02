@@ -6,6 +6,7 @@ export interface Poll {
   created_at: string
   updated_at: string
   is_active: boolean
+  poll_options?: PollOption[]
 }
 
 export interface PollOption {
