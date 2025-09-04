@@ -50,7 +50,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 4. Set up Supabase Database:
    - Go to your Supabase project dashboard
    - Navigate to the SQL Editor
-   - Run the SQL commands from `supabase-schema.sql`
+   - Run the SQL commands from `database-schema.sql`
 
 5. Run the development server:
 ```bash
@@ -74,23 +74,48 @@ All tables have Row Level Security (RLS) enabled for data protection.
 ```
 pollvoter/
 ├── app/
-│   ├── (auth)/           # Authentication pages
+│   ├── (authentication)/    # Authentication pages
 │   │   ├── login/
+│   │   │   ├── login-form.tsx
+│   │   │   └── page.tsx
 │   │   └── register/
-│   ├── (dashboard)/      # Dashboard pages
-│   ├── polls/           # Poll-related pages
+│   │       ├── register-form.tsx
+│   │       └── page.tsx
+│   ├── (main)/              # Main application pages
+│   │   ├── dashboard.tsx
+│   │   └── page.tsx
+│   ├── polls/               # Poll management
+│   │   ├── polls-list.tsx
+│   │   ├── page.tsx
 │   │   ├── create/
+│   │   │   ├── create-poll.tsx
+│   │   │   └── page.tsx
 │   │   └── [id]/
-│   └── layout.tsx
+│   │       ├── poll-details.tsx
+│   │       ├── page.tsx
+│   │       └── edit/
+│   │           ├── edit-poll.tsx
+│   │           └── page.tsx
+│   ├── layout.tsx           # Root layout with AuthProvider
+│   └── globals.css          # Global styles
 ├── components/
-│   ├── auth/            # Authentication components
-│   ├── polls/           # Poll-related components
-│   └── ui/              # Shadcn UI components
+│   ├── auth/               # Authentication components
+│   │   └── auth-provider.tsx
+│   ├── polls/              # Poll-related components
+│   └── ui/                 # Shadcn UI components
 ├── lib/
-│   ├── supabase/        # Supabase client configurations
-│   └── types.ts         # TypeScript type definitions
-├── middleware.ts        # Next.js middleware for auth
-└── supabase-schema.sql  # Database schema
+│   ├── supabase/           # Supabase configurations
+│   │   ├── browser-client.ts
+│   │   ├── server-client.ts
+│   │   └── auth-middleware.ts
+│   ├── services/           # API services
+│   │   └── poll-api.ts
+│   ├── poll-types.ts       # TypeScript definitions
+│   └── utils.ts            # Utility functions
+├── middleware.ts           # Auth middleware
+├── database-schema.sql     # Database schema
+├── database-schema-fixed.sql # Fixed database schema
+└── database-voting-policies-fix.sql # Voting policies fix
 ```
 
 ## Authentication Flow

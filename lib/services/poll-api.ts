@@ -1,6 +1,6 @@
-import { createClient } from '@/lib/supabase/client'
-import { createClient as createServerClient } from '@/lib/supabase/server'
-import { Poll, PollOption, CreatePollData } from '@/lib/types'
+import { createClient } from '@/lib/supabase/browser-client'
+import { createClient as createServerClient } from '@/lib/supabase/server-client'
+import { Poll, PollOption, CreatePollData } from '@/lib/poll-types'
 
 export class PollService {
   // Create a new poll with options
